@@ -2,7 +2,7 @@ name: Saga Checker
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # jede Minute
+    - cron: '*/1 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,13 +20,19 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: pip install requests twilio beautifulsoup4
+        run: pip install requests twilio
 
       - name: Download hash artifact
         uses: actions/download-artifact@v4
         with:
           name: saga-hash
         continue-on-error: true
+
+      - name: Move hash file if exists
+        run: |
+          if [ -f saga-hash/saga_hash.txt ]; then
+            mv saga-hash/saga_hash.txt saga_hash.txt
+          fi
 
       - name: Run Saga Checker
         run: python saga_checker.py
