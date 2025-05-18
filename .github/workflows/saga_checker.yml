@@ -16,19 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # wichtig für Branch-Operationen
-
-      - name: Checkout hash-state branch
-        uses: actions/checkout@v4
-        with:
+          fetch-depth: 0
           ref: hash-state
-          path: hash-state
 
-      - name: Copy hash file if exists
+      - name: Merge main into hash-state
         run: |
-          if [ -f hash-state/saga_hash.txt ]; then
-            cp hash-state/saga_hash.txt saga_hash.txt
-          fi
+          git fetch origin main
+          git merge origin/main || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,8 +39,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git checkout hash-state
-          cp saga_hash.txt saga_hash.txt
           git add saga_hash.txt
           git commit -m "Update hash" || echo "No changes to commit"
           git push origin hash-state
