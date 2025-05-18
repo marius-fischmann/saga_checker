@@ -15,24 +15,38 @@ jobs:
       TWILIO_TO: ${{ secrets.TWILIO_TO }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # wichtig für Branch-Operationen
+
+      - name: Checkout hash-state branch
+        uses: actions/checkout@v4
+        with:
+          ref: hash-state
+          path: hash-state
+
+      - name: Copy hash file if exists
+        run: |
+          if [ -f hash-state/saga_hash.txt ]; then
+            cp hash-state/saga_hash.txt saga_hash.txt
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install dependencies
         run: pip install requests twilio
-
-      - name: Download hash artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: saga-hash
-        continue-on-error: true
 
       - name: Run Saga Checker
         run: python saga_checker.py
 
-      - name: Upload hash artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: saga-hash
-          path: saga-hash/saga_hash.txt
+      - name: Commit and push hash file
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout hash-state
+          cp saga_hash.txt saga_hash.txt
+          git add saga_hash.txt
+          git commit -m "Update hash" || echo "No changes to commit"
+          git push origin hash-state
