@@ -22,11 +22,17 @@ jobs:
       - name: Install dependencies
         run: pip install requests twilio
 
-      - name: Cache saga_hash.txt
-        uses: actions/cache@v4
+      - name: Download hash artifact
+        uses: actions/download-artifact@v4
         with:
-          path: saga_hash.txt
-          key: saga-hash
+          name: saga-hash
+        continue-on-error: true
 
       - name: Run Saga Checker
         run: python saga_checker.py
+
+      - name: Upload hash artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: saga-hash
+          path: saga-hash/saga_hash.txt
