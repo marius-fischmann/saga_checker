@@ -23,7 +23,9 @@ def main():
         content = response.text
         current_hash = hashlib.sha256(content.encode()).hexdigest()
 
-        hash_file = "saga_hash.txt"
+        # Stelle sicher, dass der Ordner existiert
+        os.makedirs("saga-hash", exist_ok=True)
+        hash_file = "saga-hash/saga_hash.txt"
         old_hash = ""
         if os.path.exists(hash_file):
             with open(hash_file, "r") as f:
