@@ -20,6 +20,19 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: pip install requests twilio
+        run: pip install requests twilio beautifulsoup4
+
+      - name: Download hash artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: saga-hash
+        continue-on-error: true
+
       - name: Run Saga Checker
         run: python saga_checker.py
+
+      - name: Upload hash artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: saga-hash
+          path: saga_hash.txt
